@@ -5,7 +5,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Tag
+from core import models
 
 from recipe.serializers import TagSerializer
 
@@ -38,12 +38,12 @@ class PrivateTagApiTests(TestCase):
 
     def test_retrieve_tags(self):
         """Test retrieving tags"""
-        Tag.objects.create(user=self.user, name='Vegan')
-        Tag.objects.create(user=self.user, name='Dessert')
+        models.Tag.objects.create(user=self.user, name='Vegan')
+        models.Tag.objects.create(user=self.user, name='Dessert')
 
         res = self.client.get(TAG_URL)
 
-        tags = Tag.objects.all().order_by('-name')
+        tags = models.Tag.objects.all().order_by('-name')
         serializer = TagSerializer(tags, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
@@ -54,8 +54,8 @@ class PrivateTagApiTests(TestCase):
             'ivanbahutski@gmail.com',
             'testpass'
         )
-        Tag.objects.create(user=user2, name='Fruity')
-        tag = Tag.objects.create(user=self.user, name='Comfort food')
+        models.Tag.objects.create(user=user2, name='Fruity')
+        tag = models.Tag.objects.create(user=self.user, name='Comfort food')
 
         res = self.client.get(TAG_URL)
 
@@ -68,7 +68,7 @@ class PrivateTagApiTests(TestCase):
         payload = {'name': 'Test tag'}
         self.client.post(TAG_URL, payload)
 
-        exists = Tag.objects.filter(
+        exists = models.Tag.objects.filter(
             user=self.user,
             name=payload['name']
         ).exists()
