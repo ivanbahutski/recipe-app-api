@@ -9,7 +9,7 @@ from core import models
 
 from recipe.serializers import TagSerializer
 
-TAG_URL = reverse('recipe:tag-list')
+TAGS_URL = reverse('recipe:tag-list')
 
 
 class PublicTagsApiTests(TestCase):
@@ -20,7 +20,7 @@ class PublicTagsApiTests(TestCase):
 
     def test_login_required(self):
         """Test that login is required for retrieving tags"""
-        res = self.client.get(TAG_URL)
+        res = self.client.get(TAGS_URL)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -41,7 +41,7 @@ class PrivateTagApiTests(TestCase):
         models.Tag.objects.create(user=self.user, name='Vegan')
         models.Tag.objects.create(user=self.user, name='Dessert')
 
-        res = self.client.get(TAG_URL)
+        res = self.client.get(TAGS_URL)
 
         tags = models.Tag.objects.all().order_by('-name')
         serializer = TagSerializer(tags, many=True)
@@ -57,7 +57,7 @@ class PrivateTagApiTests(TestCase):
         models.Tag.objects.create(user=user2, name='Fruity')
         tag = models.Tag.objects.create(user=self.user, name='Comfort food')
 
-        res = self.client.get(TAG_URL)
+        res = self.client.get(TAGS_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
@@ -66,7 +66,7 @@ class PrivateTagApiTests(TestCase):
     def test_create_tag_successful(self):
         """Test creating a new tag"""
         payload = {'name': 'Test tag'}
-        self.client.post(TAG_URL, payload)
+        self.client.post(TAGS_URL, payload)
 
         exists = models.Tag.objects.filter(
             user=self.user,
@@ -77,6 +77,6 @@ class PrivateTagApiTests(TestCase):
     def test_create_tag_invalid(self):
         """Test creating a new tag with invalid payload"""
         payload = {'name': ''}
-        res = self.client.post(TAG_URL, payload)
+        res = self.client.post(TAGS_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
